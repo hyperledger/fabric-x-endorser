@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option go_package = "github.com/hyperledger/fabric-x-endorser/platform/fabricx/core/fabricx/committer/v2/protoqueryservice";
+
+package protoqueryservice_rc_0_2;
+
+import "platform/fabric/core/fabricx/committer/v2/protoblocktx/block_tx.proto";
+
+service QueryService {
+  rpc GetRows(Query) returns (Rows) {}
+  rpc BeginView(ViewParameters) returns (View) {}
+  rpc EndView(View) returns (View) {}
+  rpc GetPolicies(Empty) returns (protoblocktx_rc_0_2.Policies) {}
+}
+
+message View {
+  string id = 1;
+}
+
+message Query {
+  optional View view = 1;
+  repeated QueryNamespace namespaces = 2;
+}
+
+message Rows {
+  repeated RowsNamespace namespaces = 1;
+}
+
+enum IsoLevel {
+  Serializable = 0;
+  RepeatableRead = 1;
+  ReadCommitted = 2;
+  ReadUncommitted = 3;
+}
+
+message ViewParameters {
+  // Defaults to serializable deferrable.
+  IsoLevel iso_level = 1;
+  bool nonDeferrable = 2;
+  // Zero => maximal value
+  uint64 timeout_milliseconds = 3;
+}
+
+message QueryNamespace {
+  string ns_id = 1;
+  repeated bytes keys = 2;
+}
+
+message RowsNamespace {
+  string ns_id = 1;
+  repeated Row rows = 2;
+}
+
+message Row {
+  bytes key = 1;
+  bytes value = 2;
+  bytes version = 3;
+}
+
+message Empty {}
